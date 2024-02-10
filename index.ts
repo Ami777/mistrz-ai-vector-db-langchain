@@ -1,7 +1,7 @@
 import {API_KEY} from "./config";
 import {Chroma} from '@langchain/community/vectorstores/chroma';
-import {OpenAIEmbeddings} from '@langchain/openai';
-import {PDFLoader} from "langchain/document_loaders/fs/pdf";
+import {OpenAIEmbeddings, OpenAI} from '@langchain/openai';
+import {RetrievalQAChain} from "langchain/chains";
 
 (async () => {
 
@@ -15,14 +15,23 @@ import {PDFLoader} from "langchain/document_loaders/fs/pdf";
         },
     );
 
-    const loader = new PDFLoader('./data/MegaK etap 2 Node js.pdf', {
-        parsedItemSeparator: ' ',
+    const model = new OpenAI({
+        openAIApiKey: API_KEY,
+        modelName: 'gpt-4-turbo-preview',
     });
 
-    const docs = await loader.loadAndSplit();
+    const chain = RetrievalQAChain.fromLLM(
+        model,
+        vectorStore.asRetriever(),
+        {
+            verbose: true,
+        },
+    );
 
-    const res = await vectorStore.addDocuments(docs);
+    const res = await chain.invoke({
+        query: 'W jaki sposób tworzyć procesy-dzieci?',
+    });
 
-    console.log(res);
+    console.log(res.text);
 
 })();
