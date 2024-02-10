@@ -3,3 +3,6 @@ config.ts
 .idea/**/*
 .idea
 dist
+db
+data
+chroma.log
